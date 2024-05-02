@@ -1,0 +1,36 @@
+{% extends 'Dash/base.html' %}
+
+{% block content %}
+    <br>
+        <h1>Students</h1>
+    <br>
+
+<div class="row">
+    <div class="col">
+        <div class="col-md">
+            <div class="card text-white bg-primary mb-3" id="total-students">
+                <div class="card-header">
+                    <h5 class="card-title">Total Students</h5>
+                </div>
+                <div class="card-body">
+                    <h3 class="card-text">{{ total_students }}</h3>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col">
+        <div class="col-md">
+            <div class="card text-white bg-primary mb-3" id="age-average">
+                <div class="card-header">
+                    <h5 class="card-title"> Age Average</h5>
+                </div>
+                <div class="card-body">
+                    <h3 class="card-text">{{ age_average }}</h3>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+{% endblock %}

@@ -1,0 +1,75 @@
+body {
+    background-color: #000000;
+}
+
+
+.navbar-nav .nav-link {
+    font-size: 19px; /* Define el tamaño de la fuente */
+    letter-spacing:1px; /* Define el espaciado entre letras */
+    margin-right: 15px; /* Ajusta el espaciado horizontal entre elementos */
+}
+
+
+#total-students, #total-courses, #average-gpa,
+#age-average, #avg-cgpa, #avg-student-year,#students-depression,
+#students-anxiety, #number-pannic-attacks {
+    background-color: darkcyan!important;
+    color: #FFF5F5!important;
+    padding: 15px;
+    margin: 10px;
+    border-radius: 20px;
+    text-align: center;
+}
+
+
+
+
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+#total-students, #total-courses, #average-gpa, #age-average,
+#avg-cgpa, #avg-student-year, #students-depression, #students-anxiety,#number-pannic-attacks {
+    animation: fadeIn 1s ease;
+}
+
+
+#total-students, #total-courses, #average-gpa, #age-average,
+#avg-cgpa, #avg-student-year, #students-depression, #students-anxiety,#number-pannic-attacks {
+    background-image: linear-gradient(to right, #4CAF50, #2196F3);
+    color: #FFF;
+}
+
+
+#total-students, #total-courses, #average-gpa, #age-average,
+#avg-cgpa, #avg-student-year, #students-depression, #students-anxiety,#number-pannic-attacks {
+    transition: transform 0.3s ease; /* Agrega una transición suave */
+}
+
+#total-students:hover, #total-courses:hover, #average-gpa:hover,
+#age-average:hover, #avg-cgpa:hover, #avg-student-year:hover,
+#students-depression:hover, #students-anxiety:hover,#number-pannic-attacks:hover{
+    transform: scale(1.05); /* Aumenta ligeramente el tamaño al pasar el cursor */
+}
+
+
+#total-students, #total-courses, #average-gpa, #age-average,
+#avg-cgpa, #avg-student-year, #students-depression, #students-anxiety,#number-pannic-attacks {
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2); /* Agrega una sombra de texto */
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -1,0 +1,55 @@
+{% extends 'Dash/base.html' %}
+
+{% block content %}
+    <br>
+        <h1>Courses</h1>
+
+
+<div class="row">
+    <div class="col">
+        <div class="col-md">
+            <div class="card text-white bg-primary mb-3" id="total-students">
+                <div class="card-header">
+                    <h5 class="card-title">Total Courses</h5>
+                </div>
+                <div class="card-body">
+                    <h3 class="card-text">{{ total_courses }}</h3>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col">
+        <div class="col-md">
+            <div class="card text-white bg-primary mb-3" id="total-courses">
+                <div class="card-header">
+                    <h5 class="card-title">Course with the most amount of people</h5>
+                </div>
+                <div class="card-body">
+                    <h3 class="card-text">{{ course_most }} : {{course_most_people}}</h3>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col">
+        <div class="col-md">
+            <div class="card text-white bg-primary mb-3" id="average-gpa">
+                <div class="card-header">
+                    <h5 class="card-title">Course with the best GPA</h5>
+                </div>
+                <div class="card-body">
+                    <h3 class="card-text">{{ course_best_gpa }} : {{course_best_gpa_avg|floatformat:"2" }}</h3>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+
+
+
+
+
+
+{% endblock %}

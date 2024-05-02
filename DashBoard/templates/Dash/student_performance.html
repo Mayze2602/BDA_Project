@@ -1,0 +1,35 @@
+{% extends 'Dash/base.html' %}
+
+{% block content %}
+    <br>
+        <h1>Students performance</h1>
+    <br>
+
+<div class="row">
+    <div class="col">
+        <div class="col-md">
+            <div class="card text-white bg-primary mb-3" id="avg-cgpa">
+                <div class="card-header">
+                    <h5 class="card-title">Average GPA</h5>
+                </div>
+                <div class="card-body">
+                    <h3 class="card-text">{{ average_gpa|floatformat:"2" }}</h3>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col">
+        <div class="col-md">
+            <div class="card text-white bg-primary mb-3" id="avg-student-year">
+                <div class="card-header">
+                    <h5 class="card-title">Average Student Year</h5>
+                </div>
+                <div class="card-body">
+                    <h3 class="card-text">{{ average_student_year|floatformat:"2" }}</h3>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

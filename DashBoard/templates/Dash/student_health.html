@@ -1,0 +1,48 @@
+{% extends 'Dash/base.html' %}
+
+{% block content %}
+    <br>
+        <h1>Students Mental Health</h1>
+    <br>
+
+<div class="row">
+    <div class="col">
+        <div class="col-md">
+            <div class="card text-white bg-primary mb-3" id="students-depression">
+                <div class="card-header">
+                    <h5 class="card-title">Students with Depression</h5>
+                </div>
+                <div class="card-body">
+                    <h3 class="card-text">{{ Students_Depression }}</h3>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col">
+        <div class="col-md">
+            <div class="card text-white bg-primary mb-3" id="students-anxiety">
+                <div class="card-header">
+                    <h5 class="card-title"> Students with Anxiety</h5>
+                </div>
+                <div class="card-body">
+                    <h3 class="card-text">{{ Students_Anxiety }}</h3>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col">
+        <div class="col-mid">
+            <div class="card text-white bg-primary mb-3" id="number-pannic-attacks">
+                <div class="card-header">
+                    <h5 class="card-title">Number Of Pannic Attacks</h5>
+                </div>
+                <div class="card-body">
+                    <h3 class="card-text">{{ number_panic_attacks }}</h3>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+{% endblock %}
