@@ -77,7 +77,7 @@ WSGI_APPLICATION = 'DashBoard.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'mh_db',
+        'NAME': 'health_final',
         'USER': 'root',
         'PASSWORD': 'root',
         'HOST': 'localhost',  # O la IP del servidor MySQL si no está local
