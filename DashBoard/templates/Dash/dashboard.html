@@ -4,8 +4,191 @@
 
 {% include 'Dash/status.html' %}
 
-<div class="chart-container" style="position: relative; height:40vh; width:80vw">
-    <canvas id="myChart"></canvas>
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-md-6">
+            <div class="chart-container" style="position: relative; height:40vh;">
+                <canvas id="studentsChart"></canvas>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="chart-container" style="position: relative; height:40vh;">
+                <canvas id="studentConditions"></canvas>
+            </div>
+        </div>
+    </div>
 </div>
+
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        var ctx = document.getElementById('studentsChart').getContext('2d');
+    
+        // Recibir los datos de Django a través del contexto
+        var students = JSON.parse('{{ students|escapejs }}');
+        var courses = JSON.parse('{{ courses|escapejs }}');
+    
+        var myChart = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: courses,
+                datasets: [{
+                    label: '# de Estudiantes',
+                    data: students,
+                    backgroundColor: [
+                        'rgba(255, 99, 132, 0.2)',
+                        'rgba(54, 162, 235, 0.2)',
+                        'rgba(75, 192, 192, 0.2)',
+                        'rgba(255, 206, 86, 0.2)',
+                        'rgba(153, 102, 255, 0.2)',
+                        'rgba(255, 159, 64, 0.2)'
+                    ],
+                    borderColor: [
+                        'rgba(255, 99, 132, 1)',
+                        'rgba(54, 162, 235, 1)',
+                        'rgba(75, 192, 192, 1)',
+                        'rgba(255, 206, 86, 1)',
+                        'rgba(153, 102, 255, 1)',
+                        'rgba(255, 159, 64, 1)'
+                    ],
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                },
+                plugins: {
+                    legend: {
+                        display: true,
+                        position: 'top'
+                    },
+                    title: {
+                        display: true,
+                        text: 'Distribución de Estudiantes por Curso',
+                        font: {
+                            size: 16
+                        },
+                        padding: {
+                            top: 10,
+                            bottom: 30
+                        }
+                    }
+                }
+            }
+        });
+    });
+</script>
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        var conditionData = JSON.parse('{{ condition_counts|escapejs }}'); // Usa el filtro 'escapejs' para el JSON en Django
+        
+        var ctx = document.getElementById('studentConditions').getContext('2d');
+        var myChart = new Chart(ctx, {
+            type: 'pie', // Tipo de gráfico
+            data: {
+                labels: Object.keys(conditionData),
+                datasets: [{
+                    label: 'Number of Students with Conditions',
+                    data: Object.values(conditionData),
+                    backgroundColor: [
+                        'rgba(255, 99, 132, 0.2)',
+                        'rgba(54, 162, 235, 0.2)',
+                        'rgba(255, 206, 86, 0.2)'
+                    ],
+                    borderColor: [
+                        'rgba(255, 99, 132, 1)',
+                        'rgba(54, 162, 235, 1)',
+                        'rgba(255, 206, 86, 1)'
+                    ],
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                plugins: {
+                    legend: {
+                        display: true,
+                        position: 'top'
+                    },
+                    title: {
+                        display: true,
+                        text: 'Condiciones Médicas de los Estudiantes',
+                        padding: {
+                            top: 10,
+                            bottom: 30
+                        },
+                        font: {
+                            size: 18
+                        }
+                    }
+                }
+            }
+        });
+    });
+    </script>
+{% include 'Dash/students.html' %}
+<div class="chart-container" style="position: relative; height:40vh; width:80vw">
+    <canvas id="genderPieChart"></canvas>
+</div>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        var ctx = document.getElementById('genderPieChart').getContext('2d');
+        var genderData = JSON.parse('{{ gender_counts|escapejs }}');
+    
+        var genderPieChart = new Chart(ctx, {
+            type: 'pie',
+            data: {
+                labels: Object.keys(genderData),
+                datasets: [{
+                    label: 'Distribución de Estudiantes por Género',
+                    data: Object.values(genderData),
+                    backgroundColor: [
+                        'rgba(255, 99, 132, 0.5)',
+                        'rgba(54, 162, 235, 0.5)',
+                        'rgba(255, 206, 86, 0.5)',
+                        'rgba(75, 192, 192, 0.5)',
+                        'rgba(153, 102, 255, 0.5)',
+                        'rgba(255, 159, 64, 0.5)'
+                    ],
+                    borderColor: [
+                        'rgba(255, 99, 132, 1)',
+                        'rgba(54, 162, 235, 1)',
+                        'rgba(255, 206, 86, 1)',
+                        'rgba(75, 192, 192, 1)',
+                        'rgba(153, 102, 255, 1)',
+                        'rgba(255, 159, 64, 1)'
+                    ],
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                plugins: {
+                    legend: {
+                        position: 'top'
+                    },
+                    title: {
+                        display: true,
+                        text: 'Distribución de Estudiantes por Género',
+                        font: {
+                            size: 16
+                        },
+                        padding: {
+                            top: 10,
+                            bottom: 30
+                        }
+                    }
+                }
+            }
+        });
+    });
+    </script>
+{% include 'Dash/student_performance.html' %}
+
+{% include 'Dash/student_health.html' %}
+
+{% include 'Dash/courses.html' %}
+
 {% endblock %}
 ```

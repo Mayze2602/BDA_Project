@@ -71,8 +71,3 @@ class Students(models.Model):
         managed = False
         db_table = 'students'
 
-    @classmethod
-    def all(cls):
-        pass
-
-
