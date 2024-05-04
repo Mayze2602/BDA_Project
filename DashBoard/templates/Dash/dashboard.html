@@ -53,11 +53,11 @@
             </div>
         </div>
         <div class="col-md-4">
-            <canvas id="otratablaaqui"></canvas>
+            <canvas id="genderHealthChart"></canvas>
         </div>
         <div class="col-md-4">
             <div class="chart-container" style="position: relative; height:40vh;">
-                <canvas id="otratablaaqui"></canvas>
+                <canvas id="treatmentChart"></canvas>
             </div>
         </div>
     </div>
@@ -67,15 +67,15 @@
     <div class="row">
         <div class="col-md-4">
             <div class="chart-container" style="position: relative; height:40vh;">
-                <canvas id="otratablaaqui"></canvas>
+                <canvas id="performanceHealthChart"></canvas>
             </div>
         </div>
         <div class="col-md-4">
-            <canvas id="otratablaaqui"></canvas>
+            <canvas id="mentalHealthEvolutionChart"></canvas>
         </div>
         <div class="col-md-4">
             <div class="chart-container" style="position: relative; height:40vh;">
-                <canvas id="otratablaaqui"></canvas>
+                <canvas id="cgpaByCourseAndGender"></canvas>
             </div>
         </div>
     </div>
@@ -143,6 +143,9 @@
                 }
             }
         });
+        var chartContainer = document.getElementById('studentsChart').parentNode;
+        chartContainer.style.marginLeft = '100px';
+        chartContainer.style.marginTop = '400px';
     });
 </script>
 <!--STUDENT CONDITIONS-->
@@ -250,11 +253,14 @@
 <!--AGE DISTRIBUTION-->
 
 <script>
+
     document.addEventListener('DOMContentLoaded', function () {
         var ctxAge = document.getElementById('ageDistribution').getContext('2d');
         var ages = JSON.parse('{{ ages|escapejs }}');
         var ageCounts = JSON.parse('{{ age_counts|escapejs }}');
-    
+
+
+
         var ageChart = new Chart(ctxAge, {
             type: 'bar',
             data: {
@@ -292,8 +298,11 @@
                 }
             }
         });
+    var chartContainer = document.getElementById('ageDistribution').parentNode;
+    chartContainer.style.marginLeft = '-225px';
     });
-    </script>
+
+</script>
 
 <!--MARITAL DISTRIBUTION-->
 
@@ -340,6 +349,8 @@
                 }
             }
         });
+        var chartContainer = document.getElementById('maritalDistribution').parentNode;
+        chartContainer.style.marginLeft = '-75px';
     });
     </script>
 
@@ -347,11 +358,12 @@
 
 <!--CGPA BY COURSE CHART-->
 <script>
-    document.addEventListener('DOMContentLoaded', function () {
+    document.addEventListener('DOMContentLoaded', function (chart) {
         var ctxBar = document.getElementById('avgCgpaByCourseChart').getContext('2d');
         var courses = JSON.parse('{{ courses|escapejs }}');
         var avgCgpas = JSON.parse('{{ avg_cgpas|escapejs }}');
-    
+        var canvasWidth = 400; // Ancho reducido
+        var canvasHeight = 300; // Altura reducida
         var barChart = new Chart(ctxBar, {
             type: 'bar',
             data: {
@@ -393,6 +405,11 @@
                 }
             }
         });
+            var chartContainer = document.getElementById('avgCgpaByCourseChart').parentNode;
+            chartContainer.style.marginTop = '400px';
+            chartContainer.style.marginLeft = '400px';
+
+
     });
     </script>
 
@@ -457,8 +474,327 @@
                 maintainAspectRatio: false
             }
         });
+        var chartContainer = document.getElementById('cgpaDistributionChart').parentNode;
+        chartContainer.style.marginLeft = '-1100px';
     });
     </script>
+#performance health chart
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    var ctx = document.getElementById('performanceHealthChart').getContext('2d');
+    var performanceHealth = JSON.parse('{{ performance_health_json|escapejs }}');
+
+    var scatterChart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+            datasets: [{
+                label: 'Depresión',
+                data: performanceHealth.depression.map((level, index) => ({
+                    x: performanceHealth.cgpa[index],
+                    y: level
+                })),
+                backgroundColor: 'rgba(255, 99, 132, 0.5)',
+                borderColor: 'rgba(255, 99, 132, 1)'
+            }, {
+                label: 'Ansiedad',
+                data: performanceHealth.anxiety.map((level, index) => ({
+                    x: performanceHealth.cgpa[index],
+                    y: level
+                })),
+                backgroundColor: 'rgba(54, 162, 235, 0.5)',
+                borderColor: 'rgba(54, 162, 235, 1)'
+            }]
+        },
+        options: {
+            scales: {
+                x: {
+                    title: {
+                        display: true,
+                        text: 'CGPA'
+                    }
+                },
+                y: {
+                    beginAtZero: true,
+                    title: {
+                        display: true,
+                        text: 'Nivel de Salud Mental'
+                    }
+                }
+            },
+            plugins: {
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            return context.dataset.label + ': (' + context.raw.x + ', ' + context.raw.y + ')';
+                        }
+                    }
+                },
+                legend: {
+                    display: true,
+                    position: 'top'
+                },
+                title: {
+                    display: true,
+                    text: 'Correlación entre Rendimiento Académico y Salud Mental',
+                    font: {
+                        size: 16
+                    },
+                    padding: {
+                        top: 10,
+                        bottom: 30
+                    }
+                }
+            },
+            responsive: true,
+            maintainAspectRatio: false
+        }
+    });
+});
+</script>
+
+#gender health chart
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    var ctx = document.getElementById('genderHealthChart').getContext('2d');
+    var genderHealthStats = JSON.parse('{{ gender_health_stats_json|escapejs }}');
+
+    var labels = Object.keys(genderHealthStats); // Nombres de los géneros
+    var depressionData = labels.map(gender => genderHealthStats[gender].depression);
+    var anxietyData = labels.map(gender => genderHealthStats[gender].anxiety);
+
+    var stackedBarChart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: labels,
+            datasets: [{
+                label: 'Depresión',
+                data: depressionData,
+                backgroundColor: 'rgba(255, 99, 132, 0.5)',
+                borderColor: 'rgba(255, 99, 132, 1)',
+                borderWidth: 1
+            }, {
+                label: 'Ansiedad',
+                data: anxietyData,
+                backgroundColor: 'rgba(54, 162, 235, 0.5)',
+                borderColor: 'rgba(54, 162, 235, 1)',
+                borderWidth: 1
+            }]
+        },
+        options: {
+            scales: {
+                x: {
+                    stacked: true,
+                    title: {
+                        display: true,
+                        text: 'Género'
+                    }
+                },
+                y: {
+                    stacked: true,
+                    beginAtZero: true,
+                    title: {
+                        display: true,
+                        text: 'Cantidad de Estudiantes'
+                    }
+                }
+            },
+            plugins: {
+                legend: {
+                    display: true,
+                    position: 'top'
+                },
+                title: {
+                    display: true,
+                    text: 'Prevalencia de Problemas de Salud Mental por Género',
+                    font: {
+                        size: 16
+                    },
+                    padding: {
+                        top: 10,
+                        bottom: 30
+                    }
+                }
+            },
+            responsive: true,
+            maintainAspectRatio: false
+        }
+    });
+
+});
+</script>
+
+
+#students with and without treatment
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    var ctx = document.getElementById('treatmentChart').getContext('2d');
+    var treatmentStats = JSON.parse('{{ treatment_stats_json|escapejs }}');
+
+    var doughnutChart = new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+            labels: ['Con Tratamiento', 'Sin Tratamiento'],
+            datasets: [{
+                data: [treatmentStats.with_treatment, treatmentStats.without_treatment],
+                backgroundColor: ['rgba(75, 192, 192, 0.5)', 'rgba(255, 99, 132, 0.5)'],
+                borderColor: ['rgba(75, 192, 192, 1)', 'rgba(255, 99, 132, 1)'],
+                borderWidth: 1
+            }]
+        },
+        options: {
+            plugins: {
+                legend: {
+                    display: true,
+                    position: 'bottom'
+                },
+                title: {
+                    display: true,
+                    text: 'Tratamiento de Salud Mental entre Estudiantes',
+                    font: {
+                        size: 16
+                    },
+                    padding: {
+                        top: 10,
+                        bottom: 30
+                    }
+                }
+            },
+            responsive: true,
+            maintainAspectRatio: false
+        }
+    });
+});
+</script>
+
+#yearly mental health
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    var ctx = document.getElementById('mentalHealthEvolutionChart').getContext('2d');
+    var yearlyHealthStats = JSON.parse('{{ yearly_health_stats_json|escapejs }}');
+
+    var labels = Object.keys(yearlyHealthStats).map(year => `Año ${year}`);
+    var depressionData = Object.values(yearlyHealthStats).map(data => data.depression);
+    var anxietyData = Object.values(yearlyHealthStats).map(data => data.anxiety);
+    var panicAttacksData = Object.values(yearlyHealthStats).map(data => data.panic_attacks);
+
+    var lineChart = new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: labels,
+            datasets: [{
+                label: 'Depresión',
+                data: depressionData,
+                borderColor: 'rgba(255, 99, 132, 1)',
+                backgroundColor: 'rgba(255, 99, 132, 0.2)',
+                fill: true
+            }, {
+                label: 'Ansiedad',
+                data: anxietyData,
+                borderColor: 'rgba(54, 162, 235, 1)',
+                backgroundColor: 'rgba(54, 162, 235, 0.2)',
+                fill: true
+            }, {
+                label: 'Ataques de pánico',
+                data: panicAttacksData,
+                borderColor: 'rgba(75, 192, 192, 1)',
+                backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                fill: true
+            }]
+        },
+        options: {
+            scales: {
+                y: {
+                    beginAtZero: true
+                }
+            },
+            plugins: {
+                legend: {
+                    display: true,
+                    position: 'top'
+                },
+                title: {
+                    display: true,
+                    text: 'Evolución de la Salud Mental por Año Académico',
+                    font: {
+                        size: 16
+                    },
+                    padding: {
+                        top: 10,
+                        bottom: 30
+                    }
+                }
+            },
+            responsive: true,
+            maintainAspectRatio: false
+        }
+    });
+});
+</script>
+
+#course by cgpa and gender
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    var ctx = document.getElementById('cgpaByCourseAndGender').getContext('2d');
+    var data = JSON.parse('{{ cgpa_stats_json|safe }}');  // Asegúrate de usar el filtro 'safe'
+
+    var labels = Object.keys(data);
+    var datasets = [];
+
+    Object.keys(data[labels[0]]).forEach(function(gender) {
+        var dataset = {
+            label: gender,
+            data: [],
+            backgroundColor: gender === 'Male' ? 'rgba(54, 162, 235, 0.5)' : 'rgba(255, 99, 132, 0.5)',
+            borderColor: gender === 'Male' ? 'rgba(54, 162, 235, 1)' : 'rgba(255, 99, 132, 1)',
+            borderWidth: 1
+        };
+        labels.forEach(function(label) {
+            dataset.data.push(data[label][gender] || 0);  // Usa 0 como valor predeterminado si no hay datos
+        });
+        datasets.push(dataset);
+    });
+
+    var myChart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: labels,
+            datasets: datasets
+        },
+        options: {
+            scales: {
+                x: {
+                    stacked: true
+                },
+                y: {
+                    stacked: true
+                }
+            },
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                title: {
+                    display: true,
+                    text: 'Rendimiento Académico por Curso y Género',
+                    font: {
+                        size: 20
+                    },
+                    padding: {
+                        top: 20,
+                        bottom: 30
+                    }
+                },
+                legend: {
+                    display: true,
+                    position: 'top'
+                }
+            }
+        }
+    });
+});
+</script>
+
+
 
 
 {% endblock %}

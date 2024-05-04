@@ -1,5 +1,6 @@
-from django.db.models import Count, Avg, Sum, Q
+from django.db.models import Count, Avg, Sum, Q, F, Case, When
 from django.shortcuts import render
+from django.core.serializers.json import DjangoJSONEncoder
 import json
 from collections import Counter
 import numpy as np
@@ -87,7 +88,88 @@ def dashboard(request):
     hist_json = json.dumps(hist.tolist())
     bins_json = json.dumps(bin_edges.tolist())
 
+    # Data for academic performance and student health
+    performance_health_data = Studentperformance.objects.annotate(
+        depression_level=F('student__studenthealth__depression'),
+        anxiety_level=F('student__studenthealth__anxiety')
+        ).values('cgpa', 'depression_level', 'anxiety_level')
 
+    # Prepare data for chart
+    performance_health = {
+        'cgpa': [float(entry['cgpa']) if entry['cgpa'] is not None else None for entry in performance_health_data],
+        'depression': [entry['depression_level'] for entry in performance_health_data if entry['cgpa'] is not None],
+        'anxiety': [entry['anxiety_level'] for entry in performance_health_data if entry['cgpa'] is not None]
+        }
+
+    # Serializar para pasar a JavaScript usando DjangoJSONEncoder
+    performance_health_json = json.dumps(performance_health, cls=DjangoJSONEncoder)
+
+    # Data  for mental issues per gender
+    # Agrupa datos de salud mental por género
+    gender_health_data = Studenthealth.objects.values('student__gender').annotate(
+        depression_count=Sum(Case(When(depression__gt=0, then=1), default=0)),
+        anxiety_count=Sum(Case(When(anxiety__gt=0, then=1), default=0))
+        )
+
+    # Prepare data for chart
+    gender_health_stats = {
+        gender['student__gender']: {
+            'depression': gender['depression_count'],
+            'anxiety': gender['anxiety_count']
+        } for gender in gender_health_data
+    }
+
+    # Format for JS
+    gender_health_stats_json = json.dumps(gender_health_stats)
+
+    # Count students with and without treatment
+    treatment_stats = {
+        'with_treatment': Studenthealth.objects.filter(treatment__gt=0).count(),
+        'without_treatment': Studenthealth.objects.filter(treatment=0).count()
+    }
+
+    # Format for JavaScript
+    treatment_stats_json = json.dumps(treatment_stats)
+
+    # Data for yearly mental health
+    # Agrupa datos de salud mental por año académico
+    yearly_health_data = Studenthealth.objects.values('student__studentperformance__student_year').annotate(
+        depression_count=Sum(Case(When(depression__gt=0, then=1), default=0)),
+        anxiety_count=Sum(Case(When(anxiety__gt=0, then=1), default=0)),
+        panic_attack_count=Sum(Case(When(panic_attack__gt=0, then=1), default=0))
+        ).order_by('student__studentperformance__student_year')
+
+    # Prepare data for chart
+    yearly_health_stats = {
+        year['student__studentperformance__student_year']: {
+            'depression': year['depression_count'],
+            'anxiety': year['anxiety_count'],
+            'panic_attacks': year['panic_attack_count']
+        } for year in yearly_health_data if year['student__studentperformance__student_year'] is not None
+    }
+
+    # Format for JavaScript
+    yearly_health_stats_json = json.dumps(yearly_health_stats)
+
+    # Calculate CGPA per course and gender
+    performance_gender_course = Studentperformance.objects.values(
+        'course__course_name', 'student__gender'
+    ).annotate(
+        average_cgpa=Avg('cgpa')
+    ).order_by('course__course_name', 'student__gender')
+
+    # Prepare data for chart
+    cgpa_stats = {}
+    for entry in performance_gender_course:
+        course_name = entry['course__course_name']
+        gender = entry['student__gender']
+        if course_name not in cgpa_stats:
+            cgpa_stats[course_name] = {}
+    # Asigna el valor promedio directamente sin convertirlo
+        cgpa_stats[course_name][gender] = entry['average_cgpa']
+
+    # Format for JS
+    cgpa_stats_json = json.dumps(cgpa_stats, cls=DjangoJSONEncoder)
 
     context = {
         'total_courses': total_courses,
@@ -114,9 +196,14 @@ def dashboard(request):
         'avg_cgpas': avg_cgpas_json,
         'hist': hist_json,
         'bins': bins_json,
+        'performance_health_json': performance_health_json,
+        'gender_health_stats_json': gender_health_stats_json,
+        'treatment_stats_json': treatment_stats_json,
+        'yearly_health_stats_json': yearly_health_stats_json,
+        'cgpa_stats_json': cgpa_stats_json,
         
     }
-    return render(request, 'Dash/dashboard.html',context)
+    return render(request, 'Dash/dashboard.html', context)
 
 
 

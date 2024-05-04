@@ -79,7 +79,7 @@ DATABASES = {
         'ENGINE': 'django.db.backends.mysql',
         'NAME': 'health_final',
         'USER': 'root',
-        'PASSWORD': '',
+        'PASSWORD': 'root',
         'HOST': '127.0.0.1',  # O la IP del servidor MySQL si no está local
         'PORT': '3306',  # El puerto típico de MySQL
     }
