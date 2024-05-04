@@ -17,23 +17,6 @@ class Courses(models.Model):
         db_table = 'courses'
 
 
-class StudentMentalHealth1(models.Model):
-    student_timestamp = models.CharField(max_length=19, blank=True, null=True)
-    gender = models.CharField(max_length=18, blank=True, null=True)
-    age = models.CharField(max_length=3, blank=True, null=True)
-    course = models.CharField(max_length=23, blank=True, null=True)
-    student_year = models.CharField(max_length=26, blank=True, null=True)
-    cgpa = models.CharField(max_length=18, blank=True, null=True)
-    marital_status = models.CharField(max_length=14, blank=True, null=True)
-    depression = models.CharField(max_length=23, blank=True, null=True)
-    anxiety = models.CharField(max_length=20, blank=True, null=True)
-    panic_attack = models.CharField(max_length=25, blank=True, null=True)
-    treatment = models.CharField(max_length=44, blank=True, null=True)
-
-    class Meta:
-        managed = False
-        db_table = 'student_mental_health_1'
-
 
 class Studenthealth(models.Model):
     health_id = models.AutoField(primary_key=True)

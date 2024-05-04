@@ -1,6 +1,8 @@
 from django.db.models import Count, Avg, Sum, Q
 from django.shortcuts import render
 import json
+from collections import Counter
+import numpy as np
 
 from .models import Courses, Studentperformance, Studenthealth, Students
 
@@ -52,20 +54,41 @@ def dashboard(request):
     gender_counts = Students.objects.values('gender').annotate(count=Count('student_id')).order_by('gender')
     gender_counts_dict = {entry['gender']: entry['count'] for entry in gender_counts if entry['gender']}
     gender_counts_json = json.dumps(gender_counts_dict)
-    # Consulta para condiciones de salud y tratamiento
-    students_health = Studenthealth.objects.annotate(
-        has_depression=Count('depression', filter=Q(depression__gt=0)),
-        has_anxiety=Count('anxiety', filter=Q(anxiety__gt=0)),
-        has_panic_attack=Count('panic_attack', filter=Q(panic_attack__gt=0)),
-        receiving_treatment=Count('treatment', filter=Q(treatment__gt=0))
-    )
-    health_data = students_health.aggregate(
-        total_with_depression=Sum('has_depression'),
-        total_with_anxiety=Sum('has_anxiety'),
-        total_with_panic_attack=Sum('has_panic_attack'),
-        total_receiving_treatment=Sum('receiving_treatment')
-    )
-    health_data_json = json.dumps(health_data)
+
+     # Obtener la distribución de edades
+    age_distribution = Students.objects.values('age').annotate(count=Count('age')).order_by('age')
+    ages = [entry['age'] for entry in age_distribution]
+    age_counts = [entry['count'] for entry in age_distribution]
+    ages_json = json.dumps(ages)
+    age_counts_json = json.dumps(age_counts)
+
+    # Obtener la distribución del estado civil
+    marital_distribution = Students.objects.values('marital_status').annotate(count=Count('marital_status')).order_by('marital_status')
+    marital_statuses = [entry['marital_status'] for entry in marital_distribution]
+    marital_counts = [entry['count'] for entry in marital_distribution]
+    marital_statuses_json = json.dumps(marital_statuses)
+    marital_counts_json = json.dumps(marital_counts)
+
+    # Data for Average CGPA by Course Bar Chart
+    avg_cgpa_per_course = Studentperformance.objects.values('course__course_name').annotate(avg_cgpa=Avg('cgpa')).order_by('course__course_name')
+    courses = [entry['course__course_name'] for entry in avg_cgpa_per_course]
+    avg_cgpas = [float(entry['avg_cgpa']) for entry in avg_cgpa_per_course]
+    courses_json = json.dumps(courses)
+    avg_cgpas_json = json.dumps(avg_cgpas)
+
+    # Collecting CGPA data
+    cgpas = list(Studentperformance.objects.values_list('cgpa', flat=True).filter(cgpa__isnull=False))
+
+    # Define bins for histogram
+    bins = np.arange(2.0, 4.2, 0.2)  # This creates bins from 2.0 to 4.0 in increments of 0.1
+    hist, bin_edges = np.histogram(cgpas, bins=bins)
+
+    # Convert the histogram data and bins for JSON serialization
+    hist_json = json.dumps(hist.tolist())
+    bins_json = json.dumps(bin_edges.tolist())
+
+
+
     context = {
         'total_courses': total_courses,
         'total_students': total_students,
@@ -83,7 +106,14 @@ def dashboard(request):
         'course_best_gpa_avg': course_best_gpa_avg,
         'condition_counts': condition_counts_json,
         'gender_counts': gender_counts_json,
-        'health_data': health_data_json
+        'ages': ages_json,
+        'age_counts': age_counts_json,
+        'marital_statuses': marital_statuses_json,
+        'marital_counts': marital_counts_json,
+        'courses': courses_json,
+        'avg_cgpas': avg_cgpas_json,
+        'hist': hist_json,
+        'bins': bins_json,
         
     }
     return render(request, 'Dash/dashboard.html',context)
