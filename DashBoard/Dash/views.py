@@ -131,6 +131,24 @@ def dashboard(request):
     # Format for JavaScript
     treatment_stats_json = json.dumps(treatment_stats)
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
     # Data for yearly mental health
     # Agrupa datos de salud mental por año académico
     yearly_health_data = Studenthealth.objects.values('student__studentperformance__student_year').annotate(
@@ -143,13 +161,23 @@ def dashboard(request):
     yearly_health_stats = {
         year['student__studentperformance__student_year']: {
             'depression': year['depression_count'],
-            'anxiety': year['anxiety_count'],
+            'anxiety': year['anxiety_count'],   
             'panic_attacks': year['panic_attack_count']
         } for year in yearly_health_data if year['student__studentperformance__student_year'] is not None
     }
 
     # Format for JavaScript
     yearly_health_stats_json = json.dumps(yearly_health_stats)
+
+
+
+
+
+
+
+
+
+
 
     # Calculate CGPA per course and gender
     performance_gender_course = Studentperformance.objects.values(

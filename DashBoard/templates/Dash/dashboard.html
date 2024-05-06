@@ -7,17 +7,17 @@
 <div class="container-fluid">
     <div class="row">
         <div class="col-md-4">
-            <div class="chart-container" style="position: relative; height:40vh; width:80vw">
+            <div class="chart-container" style="position: relative; height:40vh; width:100%">
                 <canvas id="genderDistribution"></canvas>
             </div>            
         </div>
         <div class="col-md-4">
-            <div class="chart-container" style="position: relative; height:40vh; width:80vw">
+            <div class="chart-container" style="position: relative; height:40vh; width:100%">
                 <canvas id="ageDistribution"></canvas>
             </div>    
         </div>
         <div class="col-md-4">
-            <div class="chart-container" style="position: relative; height:40vh; width:80vw">
+            <div class="chart-container" style="position: relative; height:40vh; width:100%">
                 <canvas id="maritalDistribution"></canvas>
             </div>    
         </div>
@@ -39,11 +39,12 @@
         </div>
         <div class="col-md-4">
             <div class="chart-container" style="position: relative; height:40vh; width:80vw">
-                <canvas id="cgpaDistributionChart"></canvas>
+                    <canvas id="cgpaDistributionChart"></canvas> 
             </div> 
         </div>
     </div>
 </div>
+
 {% include 'Dash/student_health.html' %}
 <div class="container-fluid">
     <div class="row">
@@ -62,6 +63,7 @@
         </div>
     </div>
 </div>
+
 {% include 'Dash/courses.html' %}
 <div class="container-fluid">
     <div class="row">
@@ -299,7 +301,7 @@
             }
         });
     var chartContainer = document.getElementById('ageDistribution').parentNode;
-    chartContainer.style.marginLeft = '-225px';
+    chartContainer.style.marginLeft = '-150px';
     });
 
 </script>
@@ -407,7 +409,7 @@
         });
             var chartContainer = document.getElementById('avgCgpaByCourseChart').parentNode;
             chartContainer.style.marginTop = '400px';
-            chartContainer.style.marginLeft = '400px';
+            chartContainer.style.marginLeft = '300px';
 
 
     });
@@ -475,84 +477,107 @@
             }
         });
         var chartContainer = document.getElementById('cgpaDistributionChart').parentNode;
-        chartContainer.style.marginLeft = '-1100px';
+        chartContainer.style.marginLeft = '-900px';
     });
     </script>
-#performance health chart
+<!-- performance health chart -->
 <script>
-document.addEventListener('DOMContentLoaded', function () {
-    var ctx = document.getElementById('performanceHealthChart').getContext('2d');
-    var performanceHealth = JSON.parse('{{ performance_health_json|escapejs }}');
-
-    var scatterChart = new Chart(ctx, {
-        type: 'bar',
-        data: {
-            datasets: [{
-                label: 'Depresión',
-                data: performanceHealth.depression.map((level, index) => ({
-                    x: performanceHealth.cgpa[index],
-                    y: level
-                })),
-                backgroundColor: 'rgba(255, 99, 132, 0.5)',
-                borderColor: 'rgba(255, 99, 132, 1)'
-            }, {
-                label: 'Ansiedad',
-                data: performanceHealth.anxiety.map((level, index) => ({
-                    x: performanceHealth.cgpa[index],
-                    y: level
-                })),
-                backgroundColor: 'rgba(54, 162, 235, 0.5)',
-                borderColor: 'rgba(54, 162, 235, 1)'
-            }]
-        },
-        options: {
-            scales: {
-                x: {
-                    title: {
-                        display: true,
-                        text: 'CGPA'
-                    }
-                },
-                y: {
-                    beginAtZero: true,
-                    title: {
-                        display: true,
-                        text: 'Nivel de Salud Mental'
-                    }
-                }
+    document.addEventListener('DOMContentLoaded', function () {
+        var ctx = document.getElementById('performanceHealthChart').getContext('2d');
+    
+        var performanceHealth = JSON.parse('{{ performance_health_json|safe }}');
+    
+        // Calcular promedios para rangos de CGPA
+        var groupedData = groupDataByCGPARange(performanceHealth);
+    
+        var barChart = new Chart(ctx, {
+            type: 'bar',  // Tipo de gráfico
+            data: {
+                labels: Object.keys(groupedData),  // Rangos de CGPA
+                datasets: [{
+                    label: 'Depresión',
+                    data: Object.values(groupedData).map(data => data.depressionAvg),
+                    backgroundColor: 'rgba(255, 99, 132, 0.5)',
+                    borderColor: 'rgba(255, 99, 132, 1)'
+                }, {
+                    label: 'Ansiedad',
+                    data: Object.values(groupedData).map(data => data.anxietyAvg),
+                    backgroundColor: 'rgba(54, 162, 235, 0.5)',
+                    borderColor: 'rgba(54, 162, 235, 1)'
+                }]
             },
-            plugins: {
-                tooltip: {
-                    callbacks: {
-                        label: function(context) {
-                            return context.dataset.label + ': (' + context.raw.x + ', ' + context.raw.y + ')';
+            options: {
+                scales: {
+                    x: {
+                        title: {
+                            display: true,
+                            text: 'CGPA'
+                        }
+                    },
+                    y: {
+                        beginAtZero: true,
+                        title: {
+                            display: true,
+                            text: 'Nivel de Salud Mental'
                         }
                     }
                 },
-                legend: {
-                    display: true,
-                    position: 'top'
-                },
-                title: {
-                    display: true,
-                    text: 'Correlación entre Rendimiento Académico y Salud Mental',
-                    font: {
-                        size: 16
+                plugins: {
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                return context.dataset.label + ': ' + context.raw.y.toFixed(2);
+                            }
+                        }
                     },
-                    padding: {
-                        top: 10,
-                        bottom: 30
+                    legend: {
+                        display: true,
+                        position: 'top'
+                    },
+                    title: {
+                        display: true,
+                        text: 'Correlación entre Rendimiento Académico y Salud Mental',
+                        font: {
+                            size: 16
+                        },
+                        padding: {
+                            top: 10,
+                            bottom: 30
+                        }
                     }
+                },
+                responsive: true,
+                maintainAspectRatio: false
+            }
+        });
+    
+        function groupDataByCGPARange(data) {
+            const rangeSize = 0.5; // Definir el tamaño del rango de CGPA
+            const grouped = {};
+            data.cgpa.forEach((cgpa, index) => {
+                const range = Math.floor(cgpa / rangeSize) * rangeSize;
+                if (!grouped[range]) {
+                    grouped[range] = { depression: [], anxiety: [] };
                 }
-            },
-            responsive: true,
-            maintainAspectRatio: false
+                grouped[range].depression.push(data.depression[index]);
+                grouped[range].anxiety.push(data.anxiety[index]);
+            });
+    
+            // Calcular promedios para cada rango
+            Object.keys(grouped).forEach(range => {
+                const depressionAvg = grouped[range].depression.reduce((a, b) => a + b, 0) / grouped[range].depression.length;
+                const anxietyAvg = grouped[range].anxiety.reduce((a, b) => a + b, 0) / grouped[range].anxiety.length;
+                grouped[range] = { depressionAvg, anxietyAvg };
+            });
+    
+            return grouped;
         }
     });
-});
-</script>
+    </script>
+    
+    
 
-#gender health chart
+<!-- gender health chart -->
 <script>
 document.addEventListener('DOMContentLoaded', function () {
     var ctx = document.getElementById('genderHealthChart').getContext('2d');
@@ -624,7 +649,7 @@ document.addEventListener('DOMContentLoaded', function () {
 </script>
 
 
-#students with and without treatment
+<!-- students with and without treatment -->
 
 <script>
 document.addEventListener('DOMContentLoaded', function () {
@@ -667,7 +692,7 @@ document.addEventListener('DOMContentLoaded', function () {
 });
 </script>
 
-#yearly mental health
+<!-- yearly mental health -->
 <script>
 document.addEventListener('DOMContentLoaded', function () {
     var ctx = document.getElementById('mentalHealthEvolutionChart').getContext('2d');
@@ -732,7 +757,7 @@ document.addEventListener('DOMContentLoaded', function () {
 });
 </script>
 
-#course by cgpa and gender
+<!-- course by cgpa and gender -->
 <script>
 document.addEventListener('DOMContentLoaded', function () {
     var ctx = document.getElementById('cgpaByCourseAndGender').getContext('2d');
